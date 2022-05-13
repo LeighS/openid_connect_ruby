@@ -6,6 +6,7 @@ module OpenIDConnect
       class Config
         class Resource < SWD::Resource
           undef_required_attributes :principal, :service
+          attr_optional :query
 
           class Expired < SWD::Resource::Expired; end
 
