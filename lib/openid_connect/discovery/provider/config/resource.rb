@@ -12,12 +12,19 @@ module OpenIDConnect
           def initialize(uri)
             @host = uri.host
             @port = uri.port unless [80, 443].include?(uri.port)
-            @path = File.join uri.path, '.well-known/openid-configuration'
+            # Support the detection of discovery suffix if it already exists and only applying it if missing
+            if uri.path.include? '.well-known/openid-configuration'
+              @path = uri.path
+            else
+              @path = File.join uri.path, '.well-known/openid-configuration'
+            end
+            # Include support for query parameters to support providers that provide non-standard discovery URLs (Azure AD B2C for example)
+            @query = uri.query
             attr_missing!
           end
 
           def endpoint
-            SWD.url_builder.build [nil, host, port, path, nil, nil]
+            SWD.url_builder.build [nil, host, port, path, query, nil]
           rescue URI::Error => e
             raise SWD::Exception.new(e.message)
           end
